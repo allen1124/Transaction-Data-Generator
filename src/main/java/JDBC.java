@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Scanner;
 
 
 public class JDBC {
@@ -23,21 +22,27 @@ public class JDBC {
         System.out.println("Database connection successful.");
     }
 
-    private void insert(String name, String birthday) {
+    public void insert(Object data) {
+        String insertSQL = "";
+        PreparedStatement pstmt = null;
         try {
-            PreparedStatement stmt = conn.prepareStatement("INSERT INTO c0402_2017_t4 (name, birthday) VALUES (?, ?)");
-            stmt.setString(1, name);
-            stmt.setDate(2, java.sql.Date.valueOf(birthday));
-            stmt.execute();
-
+            if(data instanceof Stock) {
+                insertSQL = "INSERT INTO Stocks (isinCode, name, code, category, boardLot) VALUES (?, ?, ?, ?, ?)";
+                pstmt = conn.prepareStatement(insertSQL);
+                pstmt.setString(1, ((Stock) data).getISINCode());
+                pstmt.setString(2, ((Stock) data).getStockName());
+                pstmt.setString(3, ((Stock) data).getStockCode());
+                pstmt.setString(4, ((Stock) data).getCategory());
+                pstmt.setInt(5, ((Stock) data).getBoardLot());
+            }
+            pstmt.execute();
             System.out.println("Record created");
-
         } catch (SQLException  e) {
             System.err.println("Error inserting record: "+e);
         }
-
     }
-    private void read(String name) {
+
+    public void read(String name) {
         try {
             PreparedStatement stmt = conn.prepareStatement("SELECT birthday FROM c0402_2017_t4 WHERE name = ?");
             stmt.setString(1, name);
@@ -53,7 +58,8 @@ public class JDBC {
         }
 
     }
-    private void list() {
+
+    public void list() {
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT name, birthday FROM c0402_2017_t4");
@@ -65,7 +71,8 @@ public class JDBC {
         }
 
     }
-    private void update(String name, String birthday) {
+
+    public void update(String name, String birthday) {
         try {
             PreparedStatement stmt = conn.prepareStatement("UPDATE c0402_2017_t4 SET birthday = ? WHERE name = ?");
             stmt.setDate(1, java.sql.Date.valueOf(birthday));
@@ -82,7 +89,8 @@ public class JDBC {
         }
 
     }
-    private void delete(String name) {
+
+    public void delete(String name) {
         try {
             PreparedStatement stmt = conn.prepareStatement("DELETE FROM c0402_2017_t4 WHERE name = ?");
             stmt.setString(1, name);
@@ -94,20 +102,6 @@ public class JDBC {
             }
         } catch (SQLException e) {
             System.err.println("Error inserting record: "+e);
-        }
-    }
-    private void birthday(String birthday){
-        try {
-            PreparedStatement stmt = conn.prepareStatement("SELECT name FROM c0402_2017_t4 WHERE birthday = ?");
-            stmt.setDate(1, java.sql.Date.valueOf(birthday));
-
-            ResultSet rs = stmt.executeQuery();
-
-            while(rs.next()) {
-                System.out.println(rs.getString(1));
-            }
-        } catch (SQLException e) {
-            System.err.println("Error listing records: "+e);
         }
     }
 }
