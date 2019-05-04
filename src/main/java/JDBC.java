@@ -34,9 +34,16 @@ public class JDBC {
                 pstmt.setString(3, ((Stock) data).getStockCode());
                 pstmt.setString(4, ((Stock) data).getCategory());
                 pstmt.setInt(5, ((Stock) data).getBoardLot());
+            }else if(data instanceof Account){
+                insertSQL = "INSERT INTO Accounts (account_id, cust_id, ccy, balance) VALUES (?, ?, ?, ?)";
+                pstmt = conn.prepareStatement(insertSQL);
+                pstmt.setString(1, ((Account) data).getAccountId());
+                pstmt.setString(2, ((Account) data).getCustomerId());
+                pstmt.setString(3, ((Account) data).getCcy());
+                pstmt.setDouble(4, ((Account) data).getBalance());
             }
             pstmt.execute();
-            System.out.println("Record created");
+//            System.out.println("Record created");
         } catch (SQLException  e) {
             System.err.println("Error inserting record: "+e);
         }
@@ -59,17 +66,17 @@ public class JDBC {
 
     }
 
-    public void list() {
+    public ResultSet list(String tableName) {
         try {
+            String list_sql = "SELECT * FROM %s";
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT name, birthday FROM c0402_2017_t4");
-            while(rs.next()) {
-                System.out.println("Birthday of "+rs.getString(1)+" is on "+rs.getDate(2).toString());
-            }
+            ResultSet rs = stmt.executeQuery(String.format(list_sql, tableName));
+            System.out.println("List of "+tableName+ "collected");
+            return rs;
         } catch (SQLException e) {
             System.err.println("Error listing records: "+e);
         }
-
+        return null;
     }
 
     public void update(String name, String birthday) {
